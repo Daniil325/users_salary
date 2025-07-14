@@ -94,6 +94,7 @@ async def login(
 class SalaryResponse(BaseModel):
     salary: int
     username: str
+    salary_schedule: list
 
 
 @router.get("/", response_model=SalaryResponse | str)
@@ -104,22 +105,3 @@ async def get_user_salary(
 ):
     result = await cmd(username, payload["id"])
     return result
-
-
-class RegisterUserModel(BaseModel):
-    name: str
-    surname: str
-    password: str
-    salary: int
-    username: str
-    password: str
-    role_id: str
-
-
-@router.post("/user")
-async def create_user(
-    user: RegisterUserModel,
-    cmd: Annotated[RegisterUserCommand, Depends(get_register_user_command)],
-):
-    identity = await cmd(RegisterUserDto(**user.model_dump()))
-    return identity

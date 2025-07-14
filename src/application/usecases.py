@@ -1,7 +1,9 @@
 from dataclasses import asdict, dataclass
+import datetime #noqa
 
 from src.domain.models import User
 from src.infra.auth.jwt import PasswordManager
+from src.infra.database.mapping import UserInDb
 from src.infra.database.repo import SalaryScheduleRepo, UserRepo
 from src.infra.protocols import RedisRepo
 from src.infra.logging import logger
@@ -24,12 +26,15 @@ class GetSalaryCommand(BaseRedisCommand):
     
     async def __call__(self, username: str, user_id: str):
         if result := await self.check_redis(username):
+            result = eval(result)
             if self.is_this_user(user_id, result["id"]):
                 return result
             logger.info("Access denied")
             return "Доступ запрещен"
         logger.info("Get info from database")
         result = await self.repo.get_by_username(username)
+        if result is None:
+            return "Такого пользователя не существует"
         if self.is_this_user(user_id, result.id):
             logger.info("Set info to redis storage")
             await self.redis.set(username, str(asdict(result)) if result is not None else "")
@@ -49,7 +54,7 @@ class LoginCommand:
     user_repo: UserRepo
     password_manager: PasswordManager
     
-    async def __call__(self, username: str, password: str):
+    async def __call__(self, username: str, password: str) -> UserInDb | None:
         if not (user := await self.user_repo.get_by_username(username)):
             return None
         if not self.password_manager.validate_password(

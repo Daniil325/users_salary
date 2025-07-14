@@ -30,7 +30,10 @@ class SalaryScheduleRepo(SqlRepo):
             .where(UserInDb.username == username)
             .options(selectinload(UserInDb.salary_schedule))
         )
-        return (await self.session.execute(stmt)).scalars().all()[0]
+        res = (await self.session.execute(stmt)).scalars().all()
+        if len(res) == 0:
+            return None
+        return res[0]
 
 
 class UserRepo(SqlRepo):

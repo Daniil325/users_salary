@@ -21,7 +21,7 @@ role_table = Table(
 )
 
 user_table = Table(
-    "user",
+    "users",
     metadata,
     Column("id", Uuid(as_uuid=False, native_uuid=True), primary_key=True),
     Column("name", String, nullable=False),
@@ -36,7 +36,7 @@ salary_schedule_table = Table(
     "salary_schedule",
     metadata,
     Column("id", Uuid(as_uuid=False, native_uuid=True), primary_key=True),
-    Column("user_id", Uuid(as_uuid=False, native_uuid=True), ForeignKey("user.id"), nullable=False),
+    Column("user_id", Uuid(as_uuid=False, native_uuid=True), ForeignKey("users.id"), nullable=False),
     Column("next_date", DateTime, nullable=False),
 )
 

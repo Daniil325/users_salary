@@ -22,7 +22,7 @@ services:
       POSTGRES_PASSWORD: password
       PGDATA: /var/lib/postgresql/data
     ports:
-      - "5252:5432"
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -30,6 +30,20 @@ services:
       interval: 5s
       timeout: 3s
       retries: 3
+    networks: 
+      - net
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salary_backend
+    ports:
+      - '8000:8000'
+    restart: on-failure
+    networks: 
+      - net
+    
     
 volumes:
   redis-data:
